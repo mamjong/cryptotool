@@ -40,11 +40,10 @@ namespace CryptoTool
 
 				Directory.CreateDirectory(Path.GetDirectoryName(outputFilePath));
 
-				// Open stream/reader to input
+				// Open stream to input
 				using FileStream inputFileStream = File.OpenRead(inputFilePath);
-				using StreamReader reader = new StreamReader(inputFileStream);
 
-				// Open stream/writer to output with decryptor
+				// Open stream to output with encryptor
 				using FileStream outputFileStream = File.Create(outputFilePath);
 
 				using CryptoStream encryptionStream = new CryptoStream(
@@ -53,14 +52,16 @@ namespace CryptoTool
 					CryptoStreamMode.Write
 				);
 
-				using StreamWriter writer = new StreamWriter(encryptionStream);
-
 				// Write plaintext salt and IV to output
 				outputFileStream.Write(salt);
 				outputFileStream.Write(IV);
 
+				// Read plaintext from input
+				byte[] inputFileContent = new byte[inputFileStream.Length];
+				inputFileStream.Read(inputFileContent);
+
 				// Write ciphertext to output
-				writer.Write(reader.ReadToEnd());
+				encryptionStream.Write(inputFileContent);
 
 				Log($"Successfully encrypted \"{Path.GetFileName(inputFilePath)}\"", ConsoleColor.Green);
 			}
@@ -98,8 +99,6 @@ namespace CryptoTool
 					CryptoStreamMode.Read
 				);
 
-				using StreamReader reader = new StreamReader(decryptionStream);
-
 				// Create output file (with dirs)
 				string outputFilePath = Path.Combine(OutputDirectoryPath, Path.GetRelativePath(InputDirectoryPath, Path.ChangeExtension(inputFilePath, null)));
 
@@ -107,12 +106,13 @@ namespace CryptoTool
 
 				// Open stream and writer to output
 				using FileStream outputFileStream = File.Create(outputFilePath);
-				using StreamWriter writer = new StreamWriter(outputFileStream);
 
 				// Read/Write with decryption
 				try
 				{
-					writer.Write(reader.ReadToEnd());
+					byte[] inputDecryptedContent = new byte[inputFileStream.Length - 32];
+					decryptionStream.Read(inputDecryptedContent);
+					outputFileStream.Write(inputDecryptedContent);
 					Log($"Successfully decrypted \"{Path.GetFileName(inputFilePath)}\"", ConsoleColor.Green);
 				}
 				catch (CryptographicException)
