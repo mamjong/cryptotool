@@ -14,6 +14,12 @@
 					continue;
 				}
 
+				if (args[i] == "--replace" || args[i] == "-r")
+				{
+					cryptoTool.Replace = true;
+					continue;
+				}
+
 				if (args[i] == "--input" || args[i] == "-i")
 				{
 					cryptoTool.InputDirectoryPath = args[++i];

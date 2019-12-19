@@ -13,6 +13,7 @@ namespace CryptoTool
 		public string InputDirectoryPath { get => _inputDirectoryPath ?? Environment.CurrentDirectory; set => _inputDirectoryPath = value; }
 		public string OutputDirectoryPath { get => _outputDirectoryPath ?? InputDirectoryPath; set => _outputDirectoryPath = value; }
 		public string Password { private get => _password ?? ""; set => _password = value; }
+		public bool Replace { get; set; } = false;
 
 		public void Encrypt()
 		{
@@ -43,27 +44,32 @@ namespace CryptoTool
 				Directory.CreateDirectory(Path.GetDirectoryName(outputFilePath));
 
 				// Open stream to input
-				using FileStream inputFileStream = File.OpenRead(inputFilePath);
+				using (FileStream inputFileStream = File.OpenRead(inputFilePath))
+				{
 
-				// Open stream to output with encryptor
-				using FileStream outputFileStream = File.Create(outputFilePath);
+					// Open stream to output with encryptor
+					using FileStream outputFileStream = File.Create(outputFilePath);
 
-				using CryptoStream encryptionStream = new CryptoStream(
-					outputFileStream,
-					rijndael.CreateEncryptor(),
-					CryptoStreamMode.Write
-				);
+					using CryptoStream encryptionStream = new CryptoStream(
+						outputFileStream,
+						rijndael.CreateEncryptor(),
+						CryptoStreamMode.Write
+					);
 
-				// Write plaintext salt and IV to output
-				outputFileStream.Write(salt);
-				outputFileStream.Write(IV);
+					// Write plaintext salt and IV to output
+					outputFileStream.Write(salt);
+					outputFileStream.Write(IV);
 
-				// Read plaintext from input
-				byte[] inputFileContent = new byte[inputFileStream.Length];
-				inputFileStream.Read(inputFileContent);
+					// Read plaintext from input
+					byte[] inputFileContent = new byte[inputFileStream.Length];
+					inputFileStream.Read(inputFileContent);
 
-				// Write ciphertext to output
-				encryptionStream.Write(inputFileContent);
+					// Write ciphertext to output
+					encryptionStream.Write(inputFileContent);
+				}
+
+				// Delete input file if necessary
+				if (Replace) File.Delete(inputFilePath);
 
 				Log($"Successfully encrypted \"{Path.GetFileName(inputFilePath)}\"", ConsoleColor.Green);
 			}
