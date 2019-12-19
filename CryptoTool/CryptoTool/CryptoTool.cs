@@ -6,11 +6,12 @@ namespace CryptoTool
 {
 	public class CryptoTool
 	{
-		// private string[] _filePaths;
+		private string _outputDirectoryPath;
+		private string _password;
 
 		public string InputDirectoryPath { get; set; }
-		public string OutputDirectoryPath { get; set; }
-		public string Password { private get; set; }
+		public string OutputDirectoryPath { get => _outputDirectoryPath ?? InputDirectoryPath; set => _outputDirectoryPath = value; }
+		public string Password { private get => _password ?? ""; set => _password = value; }
 
 		public void Encrypt()
 		{
