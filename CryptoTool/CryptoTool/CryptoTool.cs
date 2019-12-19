@@ -6,7 +6,7 @@ namespace CryptoTool
 {
 	public class CryptoTool
 	{
-		private string[] _filePaths;
+		// private string[] _filePaths;
 
 		public string InputDirectoryPath { get; set; }
 		public string OutputDirectoryPath { get; set; }
@@ -15,9 +15,9 @@ namespace CryptoTool
 		public void Encrypt()
 		{
 			if (!IsAccessible()) return;
-			_filePaths = GetFilePaths(InputDirectoryPath);
+			string[] filePaths = GetFilePaths(InputDirectoryPath);
 
-			foreach (string inputFilePath in _filePaths)
+			foreach (string inputFilePath in filePaths)
 			{
 				// Initialise Rijndael
 				RandomNumberGenerator rng = RandomNumberGenerator.Create();
@@ -70,9 +70,9 @@ namespace CryptoTool
 		public void Decrypt()
 		{
 			if (!IsAccessible()) return;
-			_filePaths = GetFilePaths(InputDirectoryPath);
+			string[] filePaths = GetFilePaths(InputDirectoryPath);
 
-			foreach (string inputFilePath in _filePaths)
+			foreach (string inputFilePath in filePaths)
 			{
 				// Open stream to input
 				using FileStream inputFileStream = File.OpenRead(inputFilePath);
@@ -92,7 +92,7 @@ namespace CryptoTool
 
 				rijndael.Key = new Rfc2898DeriveBytes(Password, salt).GetBytes(rijndael.KeySize / 8);
 
-				// Create reader with decryptor
+				// Create and add decryptor to input stream
 				using CryptoStream decryptionStream = new CryptoStream(
 					inputFileStream,
 					rijndael.CreateDecryptor(),
@@ -104,7 +104,7 @@ namespace CryptoTool
 
 				Directory.CreateDirectory(Path.GetDirectoryName(outputFilePath));
 
-				// Open stream and writer to output
+				// Open stream to output
 				using FileStream outputFileStream = File.Create(outputFilePath);
 
 				// Read/Write with decryption
@@ -124,7 +124,15 @@ namespace CryptoTool
 
 		private bool IsAccessible()
 		{
-			return (Directory.Exists(InputDirectoryPath) || File.Exists(InputDirectoryPath));
+			if (Directory.Exists(InputDirectoryPath) || File.Exists(InputDirectoryPath))
+			{
+				return true;
+			}
+			else
+			{
+				Log("The folder marked for encryption is inaccessible", ConsoleColor.Red);
+				return false;
+			}
 		}
 
 		private string[] GetFilePaths(string rootPath)
