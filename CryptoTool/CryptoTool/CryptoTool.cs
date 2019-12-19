@@ -83,50 +83,54 @@ namespace CryptoTool
 			foreach (string inputFilePath in filePaths)
 			{
 				// Open stream to input
-				using FileStream inputFileStream = File.OpenRead(inputFilePath);
-
-				// Read plaintext salt and IV from input
-				byte[] salt = new byte[16];
-				byte[] IV = new byte[16];
-
-				inputFileStream.Read(salt);
-				inputFileStream.Read(IV);
-
-				// Initialise Rijndael using salt and IV
-				Rijndael rijndael = new RijndaelManaged
+				using (FileStream inputFileStream = File.OpenRead(inputFilePath))
 				{
-					IV = IV
-				};
 
-				rijndael.Key = new Rfc2898DeriveBytes(Password, salt).GetBytes(rijndael.KeySize / 8);
+					// Read plaintext salt and IV from input
+					byte[] salt = new byte[16];
+					byte[] IV = new byte[16];
 
-				// Create and add decryptor to input stream
-				using CryptoStream decryptionStream = new CryptoStream(
-					inputFileStream,
-					rijndael.CreateDecryptor(),
-					CryptoStreamMode.Read
-				);
+					inputFileStream.Read(salt);
+					inputFileStream.Read(IV);
 
-				// Create output file (with dirs)
-				string outputFilePath = Path.Combine(OutputDirectoryPath, Path.GetRelativePath(InputDirectoryPath, Path.ChangeExtension(inputFilePath, null)));
+					// Initialise Rijndael using salt and IV
+					Rijndael rijndael = new RijndaelManaged
+					{
+						IV = IV
+					};
 
-				Directory.CreateDirectory(Path.GetDirectoryName(outputFilePath));
+					rijndael.Key = new Rfc2898DeriveBytes(Password, salt).GetBytes(rijndael.KeySize / 8);
 
-				// Open stream to output
-				using FileStream outputFileStream = File.Create(outputFilePath);
+					// Create and add decryptor to input stream
+					using CryptoStream decryptionStream = new CryptoStream(
+						inputFileStream,
+						rijndael.CreateDecryptor(),
+						CryptoStreamMode.Read
+					);
 
-				// Read/Write with decryption
-				try
-				{
-					byte[] inputDecryptedContent = new byte[inputFileStream.Length - 32];
-					decryptionStream.Read(inputDecryptedContent);
-					outputFileStream.Write(inputDecryptedContent);
-					Log($"Successfully decrypted \"{Path.GetFileName(inputFilePath)}\"", ConsoleColor.Green);
+					// Create output file (with dirs)
+					string outputFilePath = Path.Combine(OutputDirectoryPath, Path.GetRelativePath(InputDirectoryPath, Path.ChangeExtension(inputFilePath, null)));
+
+					Directory.CreateDirectory(Path.GetDirectoryName(outputFilePath));
+
+					// Open stream to output
+					using FileStream outputFileStream = File.Create(outputFilePath);
+
+					// Read/Write with decryption
+					try
+					{
+						byte[] inputDecryptedContent = new byte[inputFileStream.Length - 32];
+						decryptionStream.Read(inputDecryptedContent);
+						outputFileStream.Write(inputDecryptedContent);
+						Log($"Successfully decrypted \"{Path.GetFileName(inputFilePath)}\"", ConsoleColor.Green);
+					}
+					catch (CryptographicException)
+					{
+						Log($"Failed decrypting \"{Path.GetFileName(inputFilePath)}\"", ConsoleColor.Red);
+					}
 				}
-				catch (CryptographicException)
-				{
-					Log($"Failed decrypting \"{Path.GetFileName(inputFilePath)}\"", ConsoleColor.Red);
-				}
+
+				if (Replace) File.Delete(inputFilePath);
 			}
 		}
 
