@@ -71,7 +71,7 @@ namespace CryptoTool
 		public void Decrypt()
 		{
 			if (!IsAccessible()) return;
-			string[] filePaths = GetFilePaths(InputDirectoryPath);
+			string[] filePaths = GetFilePaths(InputDirectoryPath, "*.encrypted");
 
 			foreach (string inputFilePath in filePaths)
 			{
@@ -136,13 +136,13 @@ namespace CryptoTool
 			}
 		}
 
-		private string[] GetFilePaths(string rootPath)
+		private string[] GetFilePaths(string rootPath, string filter = "*")
 		{
 			FileAttributes fileAttributes = File.GetAttributes(rootPath);
 
 			if (fileAttributes.HasFlag(FileAttributes.Directory))
 			{
-				return Directory.GetFiles(rootPath, "*", SearchOption.AllDirectories);
+				return Directory.GetFiles(rootPath, filter, SearchOption.AllDirectories);
 			}
 			else
 			{
