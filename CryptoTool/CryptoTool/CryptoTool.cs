@@ -6,13 +6,11 @@ namespace CryptoTool
 {
 	public class CryptoTool
 	{
-		private string _inputDirectoryPath;
 		private string _outputDirectoryPath;
-		private string _password;
 
-		public string InputDirectoryPath { get => _inputDirectoryPath ?? Environment.CurrentDirectory; set => _inputDirectoryPath = value; }
+		public string InputDirectoryPath { get; set; } = Environment.CurrentDirectory;
 		public string OutputDirectoryPath { get => _outputDirectoryPath ?? InputDirectoryPath; set => _outputDirectoryPath = value; }
-		public string Password { private get => _password ?? ""; set => _password = value; }
+		public string Password { private get; set; } = "";
 		public bool Replace { get; set; } = false;
 
 		public void Encrypt()
@@ -71,7 +69,7 @@ namespace CryptoTool
 				// Delete input file if necessary
 				if (Replace) File.Delete(inputFilePath);
 
-				Log($"Successfully encrypted \"{Path.GetFileName(inputFilePath)}\"", ConsoleColor.Green);
+				Logger.LogMessages(ConsoleColor.Green, $"Successfully encrypted \"{Path.GetFileName(inputFilePath)}\"");
 			}
 		}
 
@@ -122,11 +120,11 @@ namespace CryptoTool
 						byte[] inputDecryptedContent = new byte[inputFileStream.Length - 32];
 						decryptionStream.Read(inputDecryptedContent);
 						outputFileStream.Write(inputDecryptedContent);
-						Log($"Successfully decrypted \"{Path.GetFileName(inputFilePath)}\"", ConsoleColor.Green);
+						Logger.LogMessages(ConsoleColor.Green, $"Successfully decrypted \"{Path.GetFileName(inputFilePath)}\"");
 					}
 					catch (CryptographicException)
 					{
-						Log($"Failed decrypting \"{Path.GetFileName(inputFilePath)}\"", ConsoleColor.Red);
+						Logger.LogMessages(ConsoleColor.Red, $"Failed decrypting \"{Path.GetFileName(inputFilePath)}\"");
 					}
 				}
 
@@ -142,7 +140,7 @@ namespace CryptoTool
 			}
 			else
 			{
-				Log("The folder marked for encryption is inaccessible", ConsoleColor.Red);
+				Logger.LogMessages(ConsoleColor.Red, "The folder marked for encryption is inaccessible");
 				return false;
 			}
 		}
@@ -160,13 +158,6 @@ namespace CryptoTool
 				InputDirectoryPath = Path.GetDirectoryName(rootPath);
 				return new string[] { rootPath };
 			}
-		}
-
-		private void Log(string message, ConsoleColor color)
-		{
-			Console.ForegroundColor = color;
-			Console.WriteLine(message);
-			Console.ResetColor();
 		}
 	}
 }

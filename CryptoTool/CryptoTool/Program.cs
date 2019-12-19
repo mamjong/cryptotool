@@ -1,6 +1,8 @@
-﻿namespace CryptoTool
+﻿using System;
+
+namespace CryptoTool
 {
-	class Program
+	static class Program
 	{
 		static void Main(string[] args)
 		{
@@ -29,6 +31,13 @@
 				if (args[i] == "--output" || args[i] == "-o")
 				{
 					cryptoTool.OutputDirectoryPath = args[++i];
+					continue;
+				}
+
+				if (args[i] == "--help")
+				{
+					Logger.LogHelp();
+					return;
 				}
 			}
 
@@ -41,6 +50,11 @@
 			{
 				// Example: dotnet CryptoTool.dll decrypt --password "geheim123" "../../../../../ExampleFolderEncrypted" "../../../../../ExampleFolderDecrypted"
 				cryptoTool.Decrypt();
+			}
+			else
+			{
+				Logger.LogMessages(ConsoleColor.Red, $"Unknown command \"{args[0]}\"");
+				Logger.LogHelp();
 			}
 		}
 	}
