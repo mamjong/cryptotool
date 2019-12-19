@@ -14,15 +14,15 @@
 					continue;
 				}
 
-				if (args[i] == "--output" || args[i] == "-o")
+				if (args[i] == "--input" || args[i] == "-i")
 				{
-					cryptoTool.OutputDirectoryPath = args[++i];
+					cryptoTool.InputDirectoryPath = args[++i];
 					continue;
 				}
 
-				if (i == args.Length - 1)
+				if (args[i] == "--output" || args[i] == "-o")
 				{
-					cryptoTool.InputDirectoryPath = args[i];
+					cryptoTool.OutputDirectoryPath = args[++i];
 				}
 			}
 
