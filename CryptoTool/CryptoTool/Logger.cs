@@ -15,10 +15,7 @@ namespace CryptoTool
 		internal static void LogMessages(ConsoleColor foregroundColor, params string[] messages)
 		{
 			Console.ForegroundColor = foregroundColor;
-			foreach (string message in messages)
-			{
-				Console.WriteLine(message);
-			}
+			LogMessages(messages);
 			Console.ResetColor();
 		}
 
