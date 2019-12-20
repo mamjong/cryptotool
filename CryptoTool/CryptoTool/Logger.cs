@@ -4,9 +4,17 @@ namespace CryptoTool
 {
 	static class Logger
 	{
-		internal static void LogMessages(ConsoleColor color, params string[] messages)
+		internal static void LogMessages(params string[] messages)
 		{
-			Console.ForegroundColor = color;
+			foreach (string message in messages)
+			{
+				Console.WriteLine(message);
+			}
+		}
+
+		internal static void LogMessages(ConsoleColor foregroundColor, params string[] messages)
+		{
+			Console.ForegroundColor = foregroundColor;
 			foreach (string message in messages)
 			{
 				Console.WriteLine(message);
@@ -17,13 +25,17 @@ namespace CryptoTool
 		internal static void LogHelp()
 		{
 			Console.WriteLine();
-			Console.WriteLine("Usage: cryptotool <encrypt/decrypt> [OPTIONS]");
+			Console.WriteLine("Usage: cryptotool [COMMAND] [OPTIONS]");
+			Console.WriteLine();
+			Console.WriteLine("Commands:");
+			Console.WriteLine("\tencrypt\t\tEncrypt one or multiple files");
+			Console.WriteLine("\tdecrypt\t\tDecrypt one or multiple encrypted files");
 			Console.WriteLine();
 			Console.WriteLine("Options:");
-			Console.WriteLine($"-p,\t--password string\tUse given password for encryption/decryption");
-			Console.WriteLine($"-r,\t--replace\t\tReplace encrypted/decrypted files instead of creating new files");
-			Console.WriteLine($"-i,\t--input path\t\tSpecify path to encrypt/decrypt");
-			Console.WriteLine($"-o,\t--output path\t\tSpecify path for encryption/decryption output");
+			Console.WriteLine("\t-p,\t--password string\tSet a password used for encryption/decryption");
+			Console.WriteLine("\t-r,\t--replace\t\tReplace plaintext files for encryptions / encryptions for decryptions");
+			Console.WriteLine("\t-i,\t--input path\t\tSet the execution path for encryption/decryption");
+			Console.WriteLine("\t-o,\t--output dir\t\tSet the directory for encryption/decryption output");
 		}
 	}
 }
